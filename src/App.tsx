@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useMemo, useState } from 'react'
 import './App.css'
 import {
+  CHAPTER_FULL,
   CHAPTER_NAME,
   OFFICIAL_BAROM,
   SLOTS,
@@ -29,29 +30,36 @@ function SheetPage({
   return (
     <section className="sheet-page">
       <header className="sheet-page-head">
-        <span>صفحه {toFa(page)} از {toFa(3)}</span>
+        <span>صفحه {toFa(page)} از ۳</span>
         <span>پاسخبرگ</span>
       </header>
       <div className="sheet-rows">
-        {rows.map((slot) => (
-          <button
-            key={slot.n}
-            type="button"
-            className={`sheet-row ${selected === slot.n ? 'active' : ''}`}
-            onClick={() => onSelect(slot.n)}
-          >
-            <div className="col-num">{toFa(slot.n)}</div>
-            <div className="col-body">
-              <div className="part-labels">
-                {slot.labels.map((l) => (
-                  <span key={l}>({l})</span>
-                ))}
+        {rows.map((slot) => {
+          const mainTopic = slot.topics[0]
+          return (
+            <button
+              key={slot.n}
+              type="button"
+              className={`sheet-row ${selected === slot.n ? 'active' : ''}`}
+              onClick={() => onSelect(slot.n)}
+            >
+              <div className="col-num">{toFa(slot.n)}</div>
+              <div className="col-body">
+                <div className="row-title">{slot.style}</div>
+                <div className="row-sub">
+                  {mainTopic ? `مبحث اصلی: ${mainTopic.name}` : ''}
+                </div>
+                <div className="part-labels">
+                  قسمت‌ها: {slot.labels.map((l) => `(${l})`).join(' ')}
+                </div>
               </div>
-              <div className="row-hint">{slot.style}</div>
-            </div>
-            <div className="col-score">{toFa(slot.score)}</div>
-          </button>
-        ))}
+              <div className="col-score">
+                <b>{toFa(slot.score)}</b>
+                <small>نمره</small>
+              </div>
+            </button>
+          )
+        })}
       </div>
     </section>
   )
@@ -64,18 +72,19 @@ function PredictionPanel({
   slot: SlotPrediction
   onClose: () => void
 }) {
+  const main = slot.topics[0]
   return (
     <motion.aside
       className="predict-panel"
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 16 }}
+      exit={{ opacity: 0, y: 12 }}
     >
       <div className="predict-top">
         <div>
-          <div className="predict-kicker">حدس ردیف {toFa(slot.n)}</div>
+          <div className="predict-kicker">سوال شماره {toFa(slot.n)}</div>
           <h2>
-            {toFa(slot.score)} نمره · {slot.labels.map((l) => `(${l})`).join(' ')}
+            {toFa(slot.score)} نمره · {slot.labels.length} قسمت
           </h2>
         </div>
         <button type="button" className="btn-close" onClick={onClose}>
@@ -84,21 +93,40 @@ function PredictionPanel({
       </div>
 
       <div className="block style-block">
-        <div className="block-label">سبک سوال</div>
+        <div className="block-label">۱) سبک این سوال چیه؟</div>
         <div className="style-name">{slot.style}</div>
+        <p className="plain">{slot.styleExplain}</p>
+        <div className="example-box">
+          <strong>مثال شبیه نهایی:</strong>
+          <span>{slot.example}</span>
+        </div>
         <div className="meter">
           <i style={{ width: `${slot.styleChance}%` }} />
         </div>
-        <div className="meter-cap">احتمال سبک حدود {toFa(slot.styleChance)}٪</div>
+        <div className="meter-cap">
+          چقدر به این سبک مطمئنیم: حدود {toFa(slot.styleChance)}٪
+        </div>
       </div>
 
       <div className="block">
-        <div className="block-label">مباحث محتمل</div>
+        <div className="block-label">۲) از کدوم مبحثه؟</div>
+        {main && (
+          <div className="main-topic">
+            <div className="main-badge">مبحث اصلی</div>
+            <strong>{main.name}</strong>
+            <span>
+              {CHAPTER_FULL[main.chapter]} · حدود {toFa(main.chance)}٪
+            </span>
+          </div>
+        )}
         <ul className="topic-list">
-          {slot.topics.map((t) => (
+          {slot.topics.map((t, idx) => (
             <li key={t.name}>
               <div className="topic-main">
-                <strong>{t.name}</strong>
+                <strong>
+                  {idx === 0 ? 'اولویت ۱: ' : `اولویت ${toFa(idx + 1)}: `}
+                  {t.name}
+                </strong>
                 <span>{toFa(t.chance)}٪</span>
               </div>
               <div className="topic-sub">{CHAPTER_NAME[t.chapter]}</div>
@@ -111,7 +139,7 @@ function PredictionPanel({
       </div>
 
       <div className="block why-block">
-        <div className="block-label">از کجا میگم؟</div>
+        <div className="block-label">۳) چرا اینو می‌گیم؟</div>
         <p>{slot.why}</p>
         <div className="year-row">
           {slot.years.map((y) => (
@@ -124,7 +152,7 @@ function PredictionPanel({
 }
 
 export default function App() {
-  const [selected, setSelected] = useState<number | null>(null)
+  const [selected, setSelected] = useState<number | null>(1)
   const slot = SLOTS.find((s) => s.n === selected) ?? null
 
   const chapterMix = useMemo(() => {
@@ -138,57 +166,39 @@ export default function App() {
       id,
       guessed: map.get(id) ?? 0,
       official: OFFICIAL_BAROM[id],
-      name: CHAPTER_NAME[id],
+      name: CHAPTER_FULL[id],
     }))
   }, [])
 
   return (
     <div className="app">
-      <div className="orb a" />
-      <div className="orb b" />
-
       <main className="shell">
         <header className="hero">
-          <p className="kicker">پیش‌بینی پاسخبرگ خالی</p>
+          <p className="kicker">پیش‌بینی پاسخبرگ خالی شیمی دوازدهم</p>
           <h1>شیمی‌حدس</h1>
           <p className="lead">
-            روی هر ردیف بزن. برات می‌گم احتمالاً <b>چه سبکی</b>ه و از{' '}
-            <b>کدوم مبحث</b>ه — با توجه به نمره همون ردیف و الگوی نهایی‌های ۹۸ تا ۱۴۰۴
-            (خرداد، شهریور، دی).
+            این همون پاسخبرگ خالیه که فرستادی. روی هر شماره بزن تا واضح بگیم:
+            <br />
+            <b>این سوال چه جوریه</b> و <b>از کدوم مبحث کتابه</b>.
           </p>
           <div className="meta">
             <span>
-              <b>{toFa(16)}</b> ردیف
+              <b>{toFa(16)}</b> سوال
             </span>
             <span>
-              <b>{toFa(TOTAL_SCORE)}</b> نمره
+              <b>{toFa(TOTAL_SCORE)}</b> نمره کل
             </span>
             <span>
-              <b>۹۸→۱۴۰۴</b> الگوی سال‌ها
+              الگو از نهایی‌های <b>۹۸ تا ۱۴۰۴</b>
             </span>
           </div>
         </header>
 
         <div className={`layout ${slot ? 'with-panel' : ''}`}>
           <div className="sheets">
-            <SheetPage
-              page={1}
-              slots={SLOTS}
-              selected={selected}
-              onSelect={setSelected}
-            />
-            <SheetPage
-              page={2}
-              slots={SLOTS}
-              selected={selected}
-              onSelect={setSelected}
-            />
-            <SheetPage
-              page={3}
-              slots={SLOTS}
-              selected={selected}
-              onSelect={setSelected}
-            />
+            <SheetPage page={1} slots={SLOTS} selected={selected} onSelect={setSelected} />
+            <SheetPage page={2} slots={SLOTS} selected={selected} onSelect={setSelected} />
+            <SheetPage page={3} slots={SLOTS} selected={selected} onSelect={setSelected} />
           </div>
 
           <AnimatePresence mode="wait">
@@ -203,24 +213,25 @@ export default function App() {
         </div>
 
         {!slot && (
-          <p className="hint">یه ردیف از پاسخبرگ رو لمس کن تا حدس سبک و مبحثش بیاد بالا.</p>
+          <p className="hint">یکی از شماره‌های پاسخبرگ رو انتخاب کن.</p>
         )}
 
         <section className="barom">
-          <h3>اگه مبحثِ اول هر ردیف درست باشه، بارم فصل‌ها تقریباً اینه</h3>
+          <h3>جمع‌بندی ساده فصل‌ها (اگه مبحث اصلی هر سوال درست باشه)</h3>
           <div className="barom-grid">
             {chapterMix.map((c) => (
               <div key={c.id} className="barom-card">
                 <div className="barom-name">{c.name}</div>
                 <div className="barom-nums">
-                  حدس ≈ {toFa(c.guessed)} · رسمی {toFa(c.official)}
+                  حدود {toFa(c.guessed)} نمره از این پاسخبرگ · بارم رسمی نهایی{' '}
+                  {toFa(c.official)}
                 </div>
               </div>
             ))}
           </div>
           <p className="foot-note">
-            نمره و قسمت‌های هر ردیف از پاسخبرگ خودته و قطعه. سبک و مبحث حدسه — از روی تکرار
-            همه‌ی نهایی‌های اخیر، نه فقط ۱۴۰۳ و ۱۴۰۴.
+            نمره و قسمت‌های هر سوال از پاسخبرگ خودته و قطعه. نوع سوال و مبحث رو از روی تکرار
+            نهایی‌های ۹۸ تا ۱۴۰۴ حدس زدیم.
           </p>
         </section>
       </main>

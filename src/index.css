@@ -1,26 +1,24 @@
 :root {
-  --bg-deep: #061a1c;
-  --bg-mid: #0b2f32;
-  --bg-soft: #123f42;
-  --teal: #3dd6c3;
-  --teal-soft: #7ee0d0;
-  --gold: #f0c75e;
-  --coral: #e89b7b;
-  --sky: #7eb8e8;
-  --ink: #e8f6f3;
-  --ink-dim: #a7c7c2;
-  --ink-mute: #6f9490;
-  --danger: #ff8b7a;
-  --ok: #6ee7b7;
-  --surface: rgba(232, 246, 243, 0.06);
-  --surface-strong: rgba(232, 246, 243, 0.1);
-  --line: rgba(232, 246, 243, 0.14);
-  --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+  --bg: #f3f7f5;
+  --bg-soft: #e7f1ec;
+  --paper: #ffffff;
+  --paper-2: #f8fbf9;
+  --teal: #0f8f7f;
+  --teal-soft: #1aa894;
+  --gold: #c4891a;
+  --coral: #d06a4f;
+  --sky: #2f7eb5;
+  --ink: #1c2a28;
+  --ink-dim: #3d524e;
+  --ink-mute: #6a7f7a;
+  --line: #d5e3de;
+  --line-strong: #b9cdc6;
+  --shadow: 0 10px 28px rgba(28, 42, 40, 0.08);
   --font-display: 'Lalezar', 'Vazirmatn', sans-serif;
   --font-body: 'Vazirmatn', sans-serif;
-  --radius: 18px;
+  --radius: 16px;
   color: var(--ink);
-  background: var(--bg-deep);
+  background: var(--bg);
   font-family: var(--font-body);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -43,10 +41,9 @@ body {
   margin: 0;
   min-width: 320px;
   background:
-    radial-gradient(ellipse 80% 55% at 85% -10%, rgba(61, 214, 195, 0.22), transparent 55%),
-    radial-gradient(ellipse 60% 45% at 0% 20%, rgba(240, 199, 94, 0.12), transparent 50%),
-    radial-gradient(ellipse 70% 50% at 50% 110%, rgba(126, 184, 232, 0.1), transparent 55%),
-    linear-gradient(165deg, #061a1c 0%, #0b2f32 45%, #082428 100%);
+    radial-gradient(ellipse 70% 45% at 100% 0%, rgba(15, 143, 127, 0.1), transparent 55%),
+    radial-gradient(ellipse 55% 40% at 0% 15%, rgba(196, 137, 26, 0.08), transparent 50%),
+    linear-gradient(180deg, #f7faf8 0%, #eef5f1 100%);
   color: var(--ink);
 }
 
@@ -69,5 +66,5 @@ img {
 }
 
 ::selection {
-  background: rgba(61, 214, 195, 0.35);
+  background: rgba(15, 143, 127, 0.2);
 }
