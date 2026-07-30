@@ -51,6 +51,8 @@ export default function App() {
   const [index, setIndex] = useState(0)
   const [votes, setVotes] = useState<Record<number, Vote>>({})
   const [showAnswer, setShowAnswer] = useState(false)
+  const [openReview, setOpenReview] = useState<Record<string, boolean>>({})
+  const [showReviewAnswer, setShowReviewAnswer] = useState<Record<string, boolean>>({})
 
   const question = QUESTIONS[index]
   const progress = ((index + (screen === 'summary' ? 1 : 0)) / QUESTIONS.length) * 100
@@ -77,7 +79,6 @@ export default function App() {
     return {
       likely: values.filter((v) => v === 'likely').length,
       unlikely: values.filter((v) => v === 'unlikely').length,
-      answered: values.filter(Boolean).length,
     }
   }, [votes])
 
@@ -85,6 +86,8 @@ export default function App() {
     setScreen('quiz')
     setIndex(0)
     setShowAnswer(false)
+    setOpenReview({})
+    setShowReviewAnswer({})
   }
 
   const goNext = () => {
@@ -94,16 +97,24 @@ export default function App() {
     }
     setIndex((i) => i + 1)
     setShowAnswer(false)
+    setOpenReview({})
+    setShowReviewAnswer({})
   }
 
   const goPrev = () => {
     if (index === 0) return
     setIndex((i) => i - 1)
     setShowAnswer(false)
+    setOpenReview({})
+    setShowReviewAnswer({})
   }
 
   const castVote = (vote: Vote) => {
     setVotes((prev) => ({ ...prev, [question.id]: vote }))
+  }
+
+  const toggleReview = (key: string) => {
+    setOpenReview((prev) => ({ ...prev, [key]: !prev[key] }))
   }
 
   return (
@@ -122,23 +133,21 @@ export default function App() {
             transition={{ duration: 0.45 }}
           >
             <MoleculeArt />
-            <div className="hero-kicker">امتحان نهایی شیمی دوازدهم</div>
+            <div className="hero-kicker">نهایی شیمی دوازدهم</div>
             <h1 className="hero-brand">شیمی‌حدس</h1>
             <p className="hero-lead">
-              اسکلت پاسخبرگ را خواندم: {toPersianDigits(ANSWER_SHEET.questionCount)} سوال و{' '}
-              {toPersianDigits(ANSWER_SHEET.totalScore)} نمره. حالا سوال‌به‌سوال حدس می‌زنیم محتوا
-              چی می‌آید — با الگوی نهایی‌های گذشته و کتاب شیمی ۳.
+              پاسخبرگ خالیتو خوندم: {toPersianDigits(16)} سوال، {toPersianDigits(20)} نمره.
+              خرداد ۱۴۰۴ رو هم چک کردم. حالا ردیف‌به‌ردیف حدس می‌زنیم چی میاد — و برای هر مبحث،
+              عین سوال نهایی مشابه رو هم می‌ذاریم که همون‌جا مرور کنی.
             </p>
             <div className="hero-actions">
               <button className="btn btn-primary" type="button" onClick={startQuiz}>
-                شروع حدس {toPersianDigits(16)} سوالی
+                بزن بریم · {toPersianDigits(16)} سوال
               </button>
               <button
                 className="btn btn-ghost"
                 type="button"
-                onClick={() => {
-                  setScreen('summary')
-                }}
+                onClick={() => setScreen('summary')}
               >
                 اسکلت پاسخبرگ
               </button>
@@ -146,15 +155,15 @@ export default function App() {
             <div className="hero-meta">
               <div>
                 <strong>{toPersianDigits(QUESTIONS.length)}</strong>
-                ردیف پاسخبرگ
+                ردیف برگه
               </div>
               <div>
                 <strong>{toPersianDigits(TOTAL_SCORE)}</strong>
                 نمره کل
               </div>
               <div>
-                <strong>{toPersianDigits(3)} صفحه</strong>
-                اسکلت خوانده‌شده
+                <strong>۱۴۰۳ + ۱۴۰۴</strong>
+                سوال واقعی برای مرور
               </div>
             </div>
           </motion.section>
@@ -173,7 +182,7 @@ export default function App() {
               <div className="progress-wrap">
                 <div className="progress-label">
                   <span>
-                    سوال {toPersianDigits(index + 1)} از {toPersianDigits(QUESTIONS.length)}
+                    {toPersianDigits(index + 1)} از {toPersianDigits(QUESTIONS.length)}
                   </span>
                   <span>{toPersianDigits(Math.round(progress))}٪</span>
                 </div>
@@ -193,8 +202,12 @@ export default function App() {
                 transition={{ duration: 0.32 }}
               >
                 <div className="q-head">
-                  <span className="chip chip-strong">سوال {toPersianDigits(question.examSlot)}</span>
-                  <span className="chip chip-gold">{toPersianDigits(question.score)} نمره</span>
+                  <span className="chip chip-strong">
+                    ردیف {toPersianDigits(question.examSlot)}
+                  </span>
+                  <span className="chip chip-gold">
+                    {toPersianDigits(question.score)} نمره
+                  </span>
                   <span className="chip">فصل {toPersianDigits(question.chapter)}</span>
                   <span className="chip">
                     صفحه {toPersianDigits(ANSWER_SHEET.slots[question.examSlot - 1]?.page ?? 1)}
@@ -209,7 +222,7 @@ export default function App() {
                   <div className="bar">
                     <i style={{ width: `${question.confidence}%` }} />
                   </div>
-                  <span>احتمال محتوا {toPersianDigits(question.confidence)}٪</span>
+                  <span>احتمال حدود {toPersianDigits(question.confidence)}٪</span>
                 </div>
 
                 <ul className="parts">
@@ -223,18 +236,11 @@ export default function App() {
 
                 <div className="details-grid">
                   <div className="detail-block">
-                    <h3>چرا این حدس؟</h3>
+                    <h3>چرا اینو می‌گم؟</h3>
                     <p>{question.why}</p>
-                    <div className="years">
-                      {question.pastYears.map((year) => (
-                        <span className="year-tag" key={year}>
-                          {year}
-                        </span>
-                      ))}
-                    </div>
                   </div>
                   <div className="detail-block">
-                    <h3>قبل امتحان این‌ها را مرور کن</h3>
+                    <h3>اینا رو تو ذهنت داشته باش</h3>
                     <ul>
                       {question.studyTips.map((tip) => (
                         <li key={tip}>{tip}</li>
@@ -243,19 +249,72 @@ export default function App() {
                   </div>
                 </div>
 
+                <section className="review-section">
+                  <h3 className="review-title">مرور سوال واقعی نهایی (همین مبحث)</h3>
+                  <p className="review-lead">
+                    اینا از نهایی‌های گذشته‌ن — بازشون کن و همون قسمت رو این‌جا تمرین کن.
+                  </p>
+                  <div className="review-list">
+                    {question.review.map((item) => {
+                      const key = `${question.id}-${item.year}`
+                      const isOpen = Boolean(openReview[key])
+                      return (
+                        <div className="review-card" key={key}>
+                          <button
+                            type="button"
+                            className="review-toggle"
+                            onClick={() => toggleReview(key)}
+                          >
+                            <span>{item.year}</span>
+                            <span className="review-chevron">{isOpen ? '−' : '+'}</span>
+                          </button>
+                          {isOpen && (
+                            <motion.div
+                              className="review-body"
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                            >
+                              <pre className="review-text">{item.text}</pre>
+                              {showReviewAnswer[key] ? (
+                                <div className="review-answer">
+                                  <strong>جواب:</strong> {item.answer}
+                                </div>
+                              ) : (
+                                <button
+                                  type="button"
+                                  className="btn btn-ghost review-ans-btn"
+                                  onClick={() =>
+                                    setShowReviewAnswer((prev) => ({ ...prev, [key]: true }))
+                                  }
+                                >
+                                  جوابش چی بود؟
+                                </button>
+                              )}
+                            </motion.div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </section>
+
                 {showAnswer ? (
                   <motion.div
                     className="answer-box"
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                   >
-                    <h3>پاسخبرگ احتمالی</h3>
+                    <h3>حدس جواب این ردیف</h3>
                     <p>{question.likelyAnswer}</p>
                   </motion.div>
                 ) : (
                   <div className="vote-row">
-                    <button className="btn btn-ghost" type="button" onClick={() => setShowAnswer(true)}>
-                      نمایش پاسخبرگ احتمالی
+                    <button
+                      className="btn btn-ghost"
+                      type="button"
+                      onClick={() => setShowAnswer(true)}
+                    >
+                      حدس جواب این ردیف
                     </button>
                   </div>
                 )}
@@ -266,23 +325,28 @@ export default function App() {
                     className={`vote ${votes[question.id] === 'likely' ? 'active-likely' : ''}`}
                     onClick={() => castVote('likely')}
                   >
-                    محتمل می‌دانم
+                    آره محتمله
                   </button>
                   <button
                     type="button"
                     className={`vote ${votes[question.id] === 'unlikely' ? 'active-unlikely' : ''}`}
                     onClick={() => castVote('unlikely')}
                   >
-                    بعید می‌دانم
+                    بعید می‌دونم
                   </button>
                 </div>
 
                 <div className="nav-row">
-                  <button className="btn btn-ghost" type="button" onClick={goPrev} disabled={index === 0}>
-                    سوال قبلی
+                  <button
+                    className="btn btn-ghost"
+                    type="button"
+                    onClick={goPrev}
+                    disabled={index === 0}
+                  >
+                    قبلی
                   </button>
                   <button className="btn btn-primary" type="button" onClick={goNext}>
-                    {index === QUESTIONS.length - 1 ? 'جمع‌بندی نهایی' : 'سوال بعدی'}
+                    {index === QUESTIONS.length - 1 ? 'تموم · جمع‌بندی' : 'بعدی'}
                   </button>
                 </div>
               </motion.article>
@@ -301,33 +365,33 @@ export default function App() {
             <div className="topbar">
               <div className="brand-mini">شیمی‌حدس</div>
               <button className="btn btn-ghost" type="button" onClick={() => setScreen('hero')}>
-                بازگشت
+                برگرد
               </button>
             </div>
 
-            <h1>نقشه حدس امتحان</h1>
+            <h1>نقشه حدس برگه‌ت</h1>
             <p>
-              نمره و تعداد قسمت‌های هر سوال از پاسخبرگ ارسالی قفل شده است (
-              {toPersianDigits(16)} سوال، {toPersianDigits(20)} نمره). متن سوال‌ها در برگه پاک
-              شده بود؛ محتوای هر ردیف را از الگوی نهایی‌های گذشته حدس زده‌ایم.
+              نمره و قسمت‌ها از پاسخبرگ خودت قفل شدن. محتوا رو از الگوی ۱۴۰۳ و{' '}
+              <strong>خود نهایی خرداد ۱۴۰۴</strong> حدس زدم. یه نکته: ۱۴۰۴ پانزده‌سوالی بود؛
+              برگه‌ت شانزده ردیفه — پس یا نوبت دیگه‌ست یا قالب جدا.
             </p>
 
             <div className="stats">
               <div className="stat">
                 <b>{toPersianDigits(QUESTIONS.length)}</b>
-                <span>سوال حدس‌زده</span>
+                <span>ردیف حدس‌زده</span>
               </div>
               <div className="stat">
                 <b>{toPersianDigits(TOTAL_SCORE)}</b>
-                <span>مجموع نمره</span>
+                <span>جمع نمره</span>
               </div>
               <div className="stat">
                 <b>{toPersianDigits(voteStats.likely)}</b>
-                <span>محتمل از نظر تو</span>
+                <span>گفتی محتمله</span>
               </div>
               <div className="stat">
                 <b>{toPersianDigits(voteStats.unlikely)}</b>
-                <span>بعید از نظر تو</span>
+                <span>گفتی بعیده</span>
               </div>
             </div>
 
@@ -338,8 +402,8 @@ export default function App() {
                     فصل {toPersianDigits(ch.id)} · {ch.name}
                   </div>
                   <div className="meta">
-                    {toPersianDigits(ch.predictedScore)} / {toPersianDigits(ch.score)} نمره ·{' '}
-                    {toPersianDigits(ch.count)} سوال
+                    حدود {toPersianDigits(ch.predictedScore)} نمره حدسی · بارم رسمی{' '}
+                    {toPersianDigits(ch.score)} · {toPersianDigits(ch.count)} سوال
                   </div>
                   <div className="track">
                     <i
@@ -362,6 +426,8 @@ export default function App() {
                   onClick={() => {
                     setIndex(q.examSlot - 1)
                     setShowAnswer(false)
+                    setOpenReview({})
+                    setShowReviewAnswer({})
                     setScreen('quiz')
                   }}
                 >
@@ -369,9 +435,9 @@ export default function App() {
                   <div>
                     <div className="title">{q.title}</div>
                     <div className="sub">
-                      {toPersianDigits(q.score)} نمره · قسمت‌ها:{' '}
-                      {q.partLabels.map((l) => `(${l})`).join(' ')} · فصل{' '}
-                      {toPersianDigits(q.chapter)}
+                      {toPersianDigits(q.score)} نمره ·{' '}
+                      {q.partLabels.map((l) => `(${l})`).join(' ')} ·{' '}
+                      {toPersianDigits(q.review.length)} سوال واقعی برای مرور
                     </div>
                   </div>
                   <div className="vote-badge sub">
@@ -379,21 +445,17 @@ export default function App() {
                       ? 'محتمل'
                       : votes[q.id] === 'unlikely'
                         ? 'بعید'
-                        : 'بدون رأی'}
+                        : '—'}
                   </div>
                 </button>
               ))}
             </div>
 
-            <p className="note">
-              از پاسخبرگ: شماره سوال، بارم، و برچسب قسمت‌ها (الف/ب/پ/ت و آ/ب/پ/ت) خوانده شد.
-              چون متن سوال‌ها سفید شده بود، عنوان و محتوای هر ردیف حدسی است — نه قطعی. اگر صفحه
-              اول سوالات (نه فقط پاسخبرگ خالی) را هم بفرستی، حدس محتوا دقیق‌تر می‌شود.
-            </p>
+            <p className="note">{ANSWER_SHEET.note}</p>
 
             <div className="hero-actions">
               <button className="btn btn-primary" type="button" onClick={startQuiz}>
-                دوباره از سوال ۱
+                از اول
               </button>
               <button className="btn btn-ghost" type="button" onClick={() => setScreen('hero')}>
                 صفحه اول
