@@ -86,7 +86,7 @@ export const QUESTIONS: PredictedQuestion[] = [
     confidence: 94,
     type: 'چندقسمتی · صحّت‌سنجی',
     prompt:
-      '۴ عبارت دربارهٔ رسانایی اسیدها، برقکافت، چسبندگی چربی روی پارچه، و مدل دریای الکترونی — درستی را مشخص کنید و نادرست‌ها را اصلاح بنویسید.',
+      'چند عبارت دربارهٔ رسانایی اسیدها، برقکافت، چسبندگی چربی روی پارچه، و مدل دریای الکترونی — درستی را مشخص کنید و نادرست‌ها را اصلاح بنویسید.',
     parts: [
       'مقایسه رسانایی محلول‌های اسید قوی و ضعیف هم‌غلظت',
       'برقکافت محلول نمک نسبت به آب خالص',
@@ -108,7 +108,7 @@ export const QUESTIONS: PredictedQuestion[] = [
     title: 'ساختار پاک‌کننده‌ها',
     chapter: 1,
     chapterName: CHAPTERS[1].name,
-    score: 1.25,
+    score: 1,
     confidence: 92,
     type: 'تحلیلی · شکل‌دار',
     prompt:
@@ -232,7 +232,7 @@ export const QUESTIONS: PredictedQuestion[] = [
     title: 'سلول گالوانی و پتانسیل',
     chapter: 2,
     chapterName: CHAPTERS[2].name,
-    score: 1.25,
+    score: 1.75,
     confidence: 97,
     type: 'جدول E° · چندقسمتی',
     prompt:
@@ -258,7 +258,7 @@ export const QUESTIONS: PredictedQuestion[] = [
     title: 'واکنش فلز با محلول نمک',
     chapter: 2,
     chapterName: CHAPTERS[2].name,
-    score: 1,
+    score: 1.5,
     confidence: 90,
     type: 'شکلی · نیم‌واکنش',
     prompt:
@@ -305,7 +305,7 @@ export const QUESTIONS: PredictedQuestion[] = [
     title: 'تعادل آمونیاک / اثر فشار',
     chapter: 4,
     chapterName: CHAPTERS[4].name,
-    score: 1.5,
+    score: 2,
     confidence: 94,
     type: 'تعادل · نمودار · محاسبه K',
     prompt:
@@ -330,7 +330,7 @@ export const QUESTIONS: PredictedQuestion[] = [
     title: 'محاسبه pH محلول NaOH',
     chapter: 1,
     chapterName: CHAPTERS[1].name,
-    score: 1.25,
+    score: 1,
     confidence: 91,
     type: 'محاسباتی · کاربردی',
     prompt:
@@ -380,7 +380,7 @@ export const QUESTIONS: PredictedQuestion[] = [
     title: 'سلول سوختی متانول',
     chapter: 2,
     chapterName: CHAPTERS[2].name,
-    score: 1.25,
+    score: 1.75,
     confidence: 89,
     type: 'الکتروشیمی · عدد اکسایش',
     prompt:
@@ -405,7 +405,7 @@ export const QUESTIONS: PredictedQuestion[] = [
     title: 'پلیمر، نفت و بازیافت PET',
     chapter: 4,
     chapterName: CHAPTERS[4].name,
-    score: 1.5,
+    score: 2.5,
     confidence: 92,
     type: 'مولکولی · چندقسمتی',
     prompt:

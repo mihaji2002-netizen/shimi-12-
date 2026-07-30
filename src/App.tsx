@@ -146,7 +146,7 @@ export default function App() {
                 نمره کل
               </div>
               <div>
-                <strong>{toPersianDigits('۹۸–۱۴۰۳')}</strong>
+                <strong>از ۹۸ تا ۱۴۰۳</strong>
                 الگوی سال‌ها
               </div>
             </div>
