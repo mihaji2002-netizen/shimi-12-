@@ -1,7 +1,13 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useMemo, useState } from 'react'
 import './App.css'
-import { CHAPTERS, QUESTIONS, TOTAL_SCORE, type ChapterId } from './data/questions'
+import {
+  ANSWER_SHEET,
+  CHAPTERS,
+  QUESTIONS,
+  TOTAL_SCORE,
+  type ChapterId,
+} from './data/questions'
 
 type Screen = 'hero' | 'quiz' | 'summary'
 type Vote = 'likely' | 'unlikely' | null
@@ -119,12 +125,13 @@ export default function App() {
             <div className="hero-kicker">امتحان نهایی شیمی دوازدهم</div>
             <h1 className="hero-brand">شیمی‌حدس</h1>
             <p className="hero-lead">
-              سوال‌به‌سوال حدس بزن امتحان چی می‌آید — بر پایه الگوی نهایی‌های گذشته،
-              بارم‌بندی کتاب شیمی ۳ و سوالات پرتکرار خرداد ۱۴۰۳.
+              اسکلت پاسخبرگ را خواندم: {toPersianDigits(ANSWER_SHEET.questionCount)} سوال و{' '}
+              {toPersianDigits(ANSWER_SHEET.totalScore)} نمره. حالا سوال‌به‌سوال حدس می‌زنیم محتوا
+              چی می‌آید — با الگوی نهایی‌های گذشته و کتاب شیمی ۳.
             </p>
             <div className="hero-actions">
               <button className="btn btn-primary" type="button" onClick={startQuiz}>
-                شروع حدس ۱۵ سوالی
+                شروع حدس {toPersianDigits(16)} سوالی
               </button>
               <button
                 className="btn btn-ghost"
@@ -133,21 +140,21 @@ export default function App() {
                   setScreen('summary')
                 }}
               >
-                نمای کلی بارم
+                اسکلت پاسخبرگ
               </button>
             </div>
             <div className="hero-meta">
               <div>
                 <strong>{toPersianDigits(QUESTIONS.length)}</strong>
-                سوال پیش‌بینی‌شده
+                ردیف پاسخبرگ
               </div>
               <div>
                 <strong>{toPersianDigits(TOTAL_SCORE)}</strong>
                 نمره کل
               </div>
               <div>
-                <strong>از ۹۸ تا ۱۴۰۳</strong>
-                الگوی سال‌ها
+                <strong>{toPersianDigits(3)} صفحه</strong>
+                اسکلت خوانده‌شده
               </div>
             </div>
           </motion.section>
@@ -189,6 +196,9 @@ export default function App() {
                   <span className="chip chip-strong">سوال {toPersianDigits(question.examSlot)}</span>
                   <span className="chip chip-gold">{toPersianDigits(question.score)} نمره</span>
                   <span className="chip">فصل {toPersianDigits(question.chapter)}</span>
+                  <span className="chip">
+                    صفحه {toPersianDigits(ANSWER_SHEET.slots[question.examSlot - 1]?.page ?? 1)}
+                  </span>
                   <span className="chip">{question.type}</span>
                 </div>
 
@@ -199,13 +209,13 @@ export default function App() {
                   <div className="bar">
                     <i style={{ width: `${question.confidence}%` }} />
                   </div>
-                  <span>احتمال {toPersianDigits(question.confidence)}٪</span>
+                  <span>احتمال محتوا {toPersianDigits(question.confidence)}٪</span>
                 </div>
 
                 <ul className="parts">
                   {question.parts.map((part, i) => (
-                    <li key={part}>
-                      <span>{toPersianDigits(i + 1)})</span>
+                    <li key={`${question.partLabels[i]}-${part}`}>
+                      <span>({question.partLabels[i] ?? toPersianDigits(i + 1)})</span>
                       {part}
                     </li>
                   ))}
@@ -297,8 +307,9 @@ export default function App() {
 
             <h1>نقشه حدس امتحان</h1>
             <p>
-              این ۱۵ سوال طوری چیده شده که با بارم‌بندی رسمی نهایی (فصل ۱: ۶٫۵، فصل ۲: ۵،
-              فصل ۳: ۴، فصل ۴: ۴٫۵) هم‌خوان باشد و قالب خرداد ۱۴۰۳ را بازسازی کند.
+              نمره و تعداد قسمت‌های هر سوال از پاسخبرگ ارسالی قفل شده است (
+              {toPersianDigits(16)} سوال، {toPersianDigits(20)} نمره). متن سوال‌ها در برگه پاک
+              شده بود؛ محتوای هر ردیف را از الگوی نهایی‌های گذشته حدس زده‌ایم.
             </p>
 
             <div className="stats">
@@ -333,7 +344,7 @@ export default function App() {
                   <div className="track">
                     <i
                       style={{
-                        width: `${(ch.predictedScore / ch.score) * 100}%`,
+                        width: `${Math.min(100, (ch.predictedScore / ch.score) * 100)}%`,
                         background: ch.color,
                       }}
                     />
@@ -358,8 +369,9 @@ export default function App() {
                   <div>
                     <div className="title">{q.title}</div>
                     <div className="sub">
-                      فصل {toPersianDigits(q.chapter)} · {toPersianDigits(q.score)} نمره · احتمال{' '}
-                      {toPersianDigits(q.confidence)}٪
+                      {toPersianDigits(q.score)} نمره · قسمت‌ها:{' '}
+                      {q.partLabels.map((l) => `(${l})`).join(' ')} · فصل{' '}
+                      {toPersianDigits(q.chapter)}
                     </div>
                   </div>
                   <div className="vote-badge sub">
@@ -374,9 +386,9 @@ export default function App() {
             </div>
 
             <p className="note">
-              توجه: پاسخبرگ ضمیمه‌شده در این محیط در دسترس نبود؛ پاسخ‌های «پاسخبرگ احتمالی»
-              بر اساس الگوی نهایی ۱۴۰۳، کتاب شیمی ۳ و سوالات پرتکرار سال‌های قبل نوشته شده‌اند.
-              اگر فایل پاسخبرگ را دوباره بفرستی، می‌توانم حدس‌ها را دقیق‌تر روی همان تنظیم کنم.
+              از پاسخبرگ: شماره سوال، بارم، و برچسب قسمت‌ها (الف/ب/پ/ت و آ/ب/پ/ت) خوانده شد.
+              چون متن سوال‌ها سفید شده بود، عنوان و محتوای هر ردیف حدسی است — نه قطعی. اگر صفحه
+              اول سوالات (نه فقط پاسخبرگ خالی) را هم بفرستی، حدس محتوا دقیق‌تر می‌شود.
             </p>
 
             <div className="hero-actions">
