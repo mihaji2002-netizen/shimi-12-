@@ -338,7 +338,7 @@ export default function App() {
           >
             <motion.img
               className="brand-logo"
-              src="/pepsinogen-logo.webp"
+              src={`${import.meta.env.BASE_URL}pepsinogen-logo.webp`}
               alt="لوگوی پپسینوژن"
               width={168}
               height={168}
