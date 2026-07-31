@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
 import './App.css'
+import { ChemText } from './chemText'
 import {
   PRACTICE_EXAMS,
   type ExamLevel,
@@ -196,17 +197,19 @@ function ExamView({
           <span className="chip">{toFa(q.parts.length)} قسمت</span>
         </div>
         <h2>{q.title}</h2>
-        <p className="exam-intro">{q.intro}</p>
+        <p className="exam-intro">
+          <ChemText text={q.intro} />
+        </p>
 
         <ol className="exam-parts">
           {q.parts.map((p) => (
             <li key={p.label}>
               <div className="part-q">
-                <b>({p.label})</b> {p.text}
+                <b>({p.label})</b> <ChemText text={p.text} />
               </div>
               {showAnswers && (
                 <div className="part-a">
-                  <strong>جواب:</strong> {p.answer}
+                  <strong>جواب:</strong> <ChemText text={p.answer} />
                 </div>
               )}
             </li>
@@ -325,15 +328,40 @@ export default function App() {
 
   return (
     <div className="app">
-      <main className="shell">
+      <main className="shell home-shell">
         <header className="hero">
-          <p className="kicker">پیش‌بینی پاسخبرگ خالی شیمی دوازدهم</p>
-          <h1>شیمی‌حدس</h1>
-          <p className="lead">
-            اول ببین هر ردیف پاسخبرگ احتمالاً چه سبک و مبحثیه.
-            بعد با دو تا آزمون پیشنهادی تمرین کن: یکی ساده، یکی سخت.
-          </p>
-          <div className="meta">
+          <motion.div
+            className="hero-brand"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55 }}
+          >
+            <motion.img
+              className="brand-logo"
+              src="/pepsinogen-logo.webp"
+              alt="لوگوی پپسینوژن"
+              width={168}
+              height={168}
+              initial={{ scale: 0.86, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 160, damping: 16 }}
+            />
+            <div className="brand-copy">
+              <p className="brand-name">پپسینوژن</p>
+              <h1>شیمی‌حدس</h1>
+              <p className="lead">
+                پاسخبرگ خالی شیمی دوازدهم رو حدس بزن، بعد با آزمون ساده و سخت
+                خودت رو آماده کن.
+              </p>
+            </div>
+          </motion.div>
+
+          <motion.div
+            className="meta hero-meta"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.25 }}
+          >
             <span>
               <b>{toFa(16)}</b> سوال
             </span>
@@ -343,16 +371,34 @@ export default function App() {
             <span>
               الگو از <b>۹۸ تا ۱۴۰۴</b>
             </span>
-          </div>
+          </motion.div>
+
+          <motion.a
+            className="channel-banner"
+            href="https://t.me/pepsinogenacademy"
+            target="_blank"
+            rel="noreferrer"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+          >
+            <span className="channel-pulse" aria-hidden />
+            <div className="channel-copy">
+              <strong>ورود به کانال پپسینوژن</strong>
+              <span>
+                کانال رو پیگیری کن؛ یه سوپرایز خفن برای بعد از امتحان شیمی تا
+                کنکور داریم.
+              </span>
+            </div>
+            <span className="channel-cta">t.me/pepsinogenacademy</span>
+          </motion.a>
         </header>
 
         <section className="home-grid">
           <button type="button" className="home-card" onClick={() => setMode('predict')}>
             <div className="home-card-badge">قدم ۱</div>
             <h2>حدس پاسخبرگ</h2>
-            <p>
-              روی هر شماره بزن تا بگه سبک سوال چیه و از کدوم مبحثه.
-            </p>
+            <p>روی هر شماره بزن تا بگه سبک سوال چیه و از کدوم مبحثه.</p>
           </button>
 
           {PRACTICE_EXAMS.map((exam) => (
@@ -372,6 +418,16 @@ export default function App() {
             </button>
           ))}
         </section>
+
+        <footer className="home-sign">
+          <span className="sign-line">با عشق برای بچه‌های پپسینوژن</span>
+          <div className="dr-sign">
+            <span className="dr-name">Dr.haji</span>
+            <span className="dr-heart" aria-label="قلب">
+              ♥
+            </span>
+          </div>
+        </footer>
       </main>
     </div>
   )

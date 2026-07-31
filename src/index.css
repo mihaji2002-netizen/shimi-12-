@@ -16,6 +16,7 @@
   --shadow: 0 10px 28px rgba(28, 42, 40, 0.08);
   --font-display: 'Lalezar', 'Vazirmatn', sans-serif;
   --font-body: 'Vazirmatn', sans-serif;
+  --font-sign: 'Great Vibes', cursive;
   --radius: 16px;
   color: var(--ink);
   background: var(--bg);
