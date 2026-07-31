@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import './App.css'
 import {
   PRACTICE_EXAMS,
@@ -8,8 +8,8 @@ import {
 } from './data/practiceExams'
 import {
   CHAPTER_FULL,
+  CHAPTER_KEY_TOPICS,
   CHAPTER_NAME,
-  OFFICIAL_BAROM,
   SLOTS,
   TOTAL_SCORE,
   type ChapterId,
@@ -259,21 +259,11 @@ export default function App() {
   const [examLevel, setExamLevel] = useState<ExamLevel>('easy')
   const [selected, setSelected] = useState<number | null>(1)
   const slot = SLOTS.find((s) => s.n === selected) ?? null
-
-  const chapterMix = useMemo(() => {
-    const map = new Map<ChapterId, number>()
-    for (const s of SLOTS) {
-      const top = s.topics[0]
-      if (!top) continue
-      map.set(top.chapter, (map.get(top.chapter) ?? 0) + s.score)
-    }
-    return ([1, 2, 3, 4] as ChapterId[]).map((id) => ({
-      id,
-      guessed: map.get(id) ?? 0,
-      official: OFFICIAL_BAROM[id],
-      name: CHAPTER_FULL[id],
-    }))
-  }, [])
+  const chapters = ([1, 2, 3, 4] as ChapterId[]).map((id) => ({
+    id,
+    name: CHAPTER_FULL[id],
+    topics: CHAPTER_KEY_TOPICS[id],
+  }))
 
   if (mode === 'exam') {
     return (
@@ -314,14 +304,16 @@ export default function App() {
           </div>
 
           <section className="barom">
-            <h3>جمع‌بندی فصل‌ها (با مبحث اصلی هر سوال)</h3>
+            <h3>جمع‌بندی فصل‌ها · مباحث مهم</h3>
             <div className="barom-grid">
-              {chapterMix.map((c) => (
+              {chapters.map((c) => (
                 <div key={c.id} className="barom-card">
                   <div className="barom-name">{c.name}</div>
-                  <div className="barom-nums">
-                    حدود {toFa(c.guessed)} نمره · رسمی {toFa(c.official)}
-                  </div>
+                  <ul className="chapter-topics">
+                    {c.topics.map((t) => (
+                      <li key={t}>{t}</li>
+                    ))}
+                  </ul>
                 </div>
               ))}
             </div>

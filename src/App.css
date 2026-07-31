@@ -352,12 +352,31 @@
 .barom-name {
   font-weight: 800;
   font-size: 0.9rem;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.45rem;
 }
-.barom-nums {
-  color: var(--ink-mute);
-  font-size: 0.85rem;
-  line-height: 1.6;
+.chapter-topics {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.35rem;
+}
+.chapter-topics li {
+  color: var(--ink-dim);
+  font-size: 0.86rem;
+  line-height: 1.55;
+  padding-right: 0.7rem;
+  position: relative;
+}
+.chapter-topics li::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0.55em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--teal);
 }
 .foot-note {
   margin: 0.85rem 0 0;
