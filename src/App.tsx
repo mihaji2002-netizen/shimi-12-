@@ -348,7 +348,7 @@ export default function App() {
             />
             <div className="brand-copy">
               <p className="brand-name">پپسینوژن</p>
-              <h1>شیمی‌حدس</h1>
+              <h1>پیش‌بینی امتحان نهایی شیمی ۱۲ام</h1>
               <p className="lead">
                 پاسخبرگ خالی شیمی دوازدهم رو حدس بزن، بعد با آزمون ساده و سخت
                 خودت رو آماده کن.
