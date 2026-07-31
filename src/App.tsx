@@ -2,6 +2,11 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useMemo, useState } from 'react'
 import './App.css'
 import {
+  PRACTICE_EXAMS,
+  type ExamLevel,
+  type PracticeQuestion,
+} from './data/practiceExams'
+import {
   CHAPTER_FULL,
   CHAPTER_NAME,
   OFFICIAL_BAROM,
@@ -10,6 +15,8 @@ import {
   type ChapterId,
   type SlotPrediction,
 } from './data/predictions'
+
+type Mode = 'home' | 'predict' | 'exam'
 
 function toFa(value: number | string) {
   return String(value).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)])
@@ -84,7 +91,7 @@ function PredictionPanel({
         <div>
           <div className="predict-kicker">سوال شماره {toFa(slot.n)}</div>
           <h2>
-            {toFa(slot.score)} نمره · {slot.labels.length} قسمت
+            {toFa(slot.score)} نمره · {toFa(slot.labels.length)} قسمت
           </h2>
         </div>
         <button type="button" className="btn-close" onClick={onClose}>
@@ -151,7 +158,105 @@ function PredictionPanel({
   )
 }
 
+function ExamView({
+  level,
+  onBack,
+}: {
+  level: ExamLevel
+  onBack: () => void
+}) {
+  const exam = PRACTICE_EXAMS.find((e) => e.id === level)!
+  const [index, setIndex] = useState(0)
+  const [showAnswers, setShowAnswers] = useState(false)
+  const q: PracticeQuestion = exam.questions[index]
+  const progress = ((index + 1) / exam.questions.length) * 100
+
+  return (
+    <section className="exam-wrap">
+      <div className="exam-topbar">
+        <button type="button" className="btn-close" onClick={onBack}>
+          بازگشت
+        </button>
+        <div className="exam-top-title">
+          <b>{exam.title}</b>
+          <span>{exam.badge}</span>
+        </div>
+        <div className="exam-progress-label">
+          {toFa(index + 1)} / {toFa(exam.questions.length)}
+        </div>
+      </div>
+      <div className="progress-track">
+        <div className="progress-fill" style={{ width: `${progress}%` }} />
+      </div>
+
+      <article className="exam-card">
+        <div className="exam-q-head">
+          <span className="chip">سوال {toFa(q.n)}</span>
+          <span className="chip gold">{toFa(q.score)} نمره</span>
+          <span className="chip">{toFa(q.parts.length)} قسمت</span>
+        </div>
+        <h2>{q.title}</h2>
+        <p className="exam-intro">{q.intro}</p>
+
+        <ol className="exam-parts">
+          {q.parts.map((p) => (
+            <li key={p.label}>
+              <div className="part-q">
+                <b>({p.label})</b> {p.text}
+              </div>
+              {showAnswers && (
+                <div className="part-a">
+                  <strong>جواب:</strong> {p.answer}
+                </div>
+              )}
+            </li>
+          ))}
+        </ol>
+
+        <div className="exam-actions">
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={() => setShowAnswers((v) => !v)}
+          >
+            {showAnswers ? 'پنهان کردن جواب' : 'دیدن جواب این سوال'}
+          </button>
+          <div className="exam-nav">
+            <button
+              type="button"
+              className="btn-secondary"
+              disabled={index === 0}
+              onClick={() => {
+                setIndex((i) => i - 1)
+                setShowAnswers(false)
+              }}
+            >
+              قبلی
+            </button>
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={() => {
+                if (index >= exam.questions.length - 1) {
+                  onBack()
+                  return
+                }
+                setIndex((i) => i + 1)
+                setShowAnswers(false)
+              }}
+            >
+              {index >= exam.questions.length - 1 ? 'تموم' : 'بعدی'}
+            </button>
+          </div>
+        </div>
+      </article>
+    </section>
+  )
+}
+
 export default function App() {
+  const [mode, setMode] = useState<Mode>('home')
+  const [examLevel, setExamLevel] = useState<ExamLevel>('easy')
   const [selected, setSelected] = useState<number | null>(1)
   const slot = SLOTS.find((s) => s.n === selected) ?? null
 
@@ -170,6 +275,62 @@ export default function App() {
     }))
   }, [])
 
+  if (mode === 'exam') {
+    return (
+      <div className="app">
+        <main className="shell">
+          <ExamView level={examLevel} onBack={() => setMode('home')} />
+        </main>
+      </div>
+    )
+  }
+
+  if (mode === 'predict') {
+    return (
+      <div className="app">
+        <main className="shell">
+          <div className="subnav">
+            <button type="button" className="btn-close" onClick={() => setMode('home')}>
+              صفحه اول
+            </button>
+            <h1 className="subnav-title">حدس پاسخبرگ</h1>
+          </div>
+
+          <div className={`layout ${slot ? 'with-panel' : ''}`}>
+            <div className="sheets">
+              <SheetPage page={1} slots={SLOTS} selected={selected} onSelect={setSelected} />
+              <SheetPage page={2} slots={SLOTS} selected={selected} onSelect={setSelected} />
+              <SheetPage page={3} slots={SLOTS} selected={selected} onSelect={setSelected} />
+            </div>
+            <AnimatePresence mode="wait">
+              {slot && (
+                <PredictionPanel
+                  key={slot.n}
+                  slot={slot}
+                  onClose={() => setSelected(null)}
+                />
+              )}
+            </AnimatePresence>
+          </div>
+
+          <section className="barom">
+            <h3>جمع‌بندی فصل‌ها (با مبحث اصلی هر سوال)</h3>
+            <div className="barom-grid">
+              {chapterMix.map((c) => (
+                <div key={c.id} className="barom-card">
+                  <div className="barom-name">{c.name}</div>
+                  <div className="barom-nums">
+                    حدود {toFa(c.guessed)} نمره · رسمی {toFa(c.official)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        </main>
+      </div>
+    )
+  }
+
   return (
     <div className="app">
       <main className="shell">
@@ -177,62 +338,47 @@ export default function App() {
           <p className="kicker">پیش‌بینی پاسخبرگ خالی شیمی دوازدهم</p>
           <h1>شیمی‌حدس</h1>
           <p className="lead">
-            این همون پاسخبرگ خالیه که فرستادی. روی هر شماره بزن تا واضح بگیم:
-            <br />
-            <b>این سوال چه جوریه</b> و <b>از کدوم مبحث کتابه</b>.
+            اول ببین هر ردیف پاسخبرگ احتمالاً چه سبک و مبحثیه.
+            بعد با دو تا آزمون پیشنهادی تمرین کن: یکی ساده، یکی سخت.
           </p>
           <div className="meta">
             <span>
               <b>{toFa(16)}</b> سوال
             </span>
             <span>
-              <b>{toFa(TOTAL_SCORE)}</b> نمره کل
+              <b>{toFa(TOTAL_SCORE)}</b> نمره
             </span>
             <span>
-              الگو از نهایی‌های <b>۹۸ تا ۱۴۰۴</b>
+              الگو از <b>۹۸ تا ۱۴۰۴</b>
             </span>
           </div>
         </header>
 
-        <div className={`layout ${slot ? 'with-panel' : ''}`}>
-          <div className="sheets">
-            <SheetPage page={1} slots={SLOTS} selected={selected} onSelect={setSelected} />
-            <SheetPage page={2} slots={SLOTS} selected={selected} onSelect={setSelected} />
-            <SheetPage page={3} slots={SLOTS} selected={selected} onSelect={setSelected} />
-          </div>
+        <section className="home-grid">
+          <button type="button" className="home-card" onClick={() => setMode('predict')}>
+            <div className="home-card-badge">قدم ۱</div>
+            <h2>حدس پاسخبرگ</h2>
+            <p>
+              روی هر شماره بزن تا بگه سبک سوال چیه و از کدوم مبحثه.
+            </p>
+          </button>
 
-          <AnimatePresence mode="wait">
-            {slot && (
-              <PredictionPanel
-                key={slot.n}
-                slot={slot}
-                onClose={() => setSelected(null)}
-              />
-            )}
-          </AnimatePresence>
-        </div>
-
-        {!slot && (
-          <p className="hint">یکی از شماره‌های پاسخبرگ رو انتخاب کن.</p>
-        )}
-
-        <section className="barom">
-          <h3>جمع‌بندی ساده فصل‌ها (اگه مبحث اصلی هر سوال درست باشه)</h3>
-          <div className="barom-grid">
-            {chapterMix.map((c) => (
-              <div key={c.id} className="barom-card">
-                <div className="barom-name">{c.name}</div>
-                <div className="barom-nums">
-                  حدود {toFa(c.guessed)} نمره از این پاسخبرگ · بارم رسمی نهایی{' '}
-                  {toFa(c.official)}
-                </div>
-              </div>
-            ))}
-          </div>
-          <p className="foot-note">
-            نمره و قسمت‌های هر سوال از پاسخبرگ خودته و قطعه. نوع سوال و مبحث رو از روی تکرار
-            نهایی‌های ۹۸ تا ۱۴۰۴ حدس زدیم.
-          </p>
+          {PRACTICE_EXAMS.map((exam) => (
+            <button
+              key={exam.id}
+              type="button"
+              className={`home-card ${exam.id === 'hard' ? 'hard' : 'easy'}`}
+              onClick={() => {
+                setExamLevel(exam.id)
+                setMode('exam')
+              }}
+            >
+              <div className="home-card-badge">{exam.badge}</div>
+              <h2>{exam.title}</h2>
+              <p>{exam.blurb}</p>
+              <span className="home-card-tip">{exam.tip}</span>
+            </button>
+          ))}
         </section>
       </main>
     </div>

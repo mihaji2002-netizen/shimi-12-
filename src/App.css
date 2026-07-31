@@ -375,3 +375,237 @@
     font-size: 0.92rem;
   }
 }
+
+.home-grid {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 1.2rem;
+}
+@media (min-width: 800px) {
+  .home-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.home-card {
+  border: 1px solid var(--line);
+  background: var(--paper);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.1rem 1rem 1.15rem;
+  text-align: right;
+  color: var(--ink);
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease;
+}
+.home-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--line-strong);
+}
+.home-card.easy {
+  background: linear-gradient(180deg, #f7fffb 0%, #ffffff 55%);
+}
+.home-card.hard {
+  background: linear-gradient(180deg, #fff8f4 0%, #ffffff 55%);
+}
+.home-card-badge {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: #dff3ee;
+  color: var(--teal);
+  font-size: 0.78rem;
+  font-weight: 800;
+  margin-bottom: 0.55rem;
+}
+.home-card.hard .home-card-badge {
+  background: #ffe6db;
+  color: #b14d35;
+}
+.home-card h2 {
+  margin: 0 0 0.45rem;
+  font-size: 1.2rem;
+}
+.home-card p {
+  margin: 0;
+  color: var(--ink-dim);
+  line-height: 1.8;
+  font-size: 0.95rem;
+}
+.home-card-tip {
+  display: block;
+  margin-top: 0.7rem;
+  color: var(--ink-mute);
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+.subnav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.subnav-title {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.exam-wrap {
+  display: grid;
+  gap: 0.85rem;
+}
+.exam-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.exam-top-title {
+  display: grid;
+  gap: 0.15rem;
+  text-align: center;
+}
+.exam-top-title b {
+  font-size: 1.1rem;
+}
+.exam-top-title span {
+  color: var(--ink-mute);
+  font-size: 0.82rem;
+}
+.exam-progress-label {
+  min-width: 3.5rem;
+  text-align: left;
+  font-weight: 800;
+  color: var(--teal);
+}
+.progress-track {
+  height: 8px;
+  border-radius: 999px;
+  background: #e2ece8;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0f8f7f, #c4891a);
+  border-radius: inherit;
+  transition: width 0.25s ease;
+}
+
+.exam-card {
+  border: 1px solid var(--line);
+  background: var(--paper);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.1rem 1rem 1.2rem;
+}
+.exam-q-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.7rem;
+}
+.chip {
+  display: inline-flex;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: #eef5f1;
+  border: 1px solid var(--line);
+  color: var(--ink-dim);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.chip.gold {
+  background: #fff4d8;
+  border-color: #edd7a3;
+  color: #9a6a10;
+}
+.exam-card h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1.35rem;
+}
+.exam-intro {
+  margin: 0 0 0.9rem;
+  color: var(--ink-dim);
+  line-height: 1.8;
+}
+.exam-parts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.65rem;
+}
+.exam-parts li {
+  border: 1px solid var(--line);
+  background: var(--paper-2);
+  border-radius: 12px;
+  padding: 0.75rem 0.85rem;
+}
+.part-q {
+  line-height: 1.8;
+  color: var(--ink);
+}
+.part-q b {
+  color: var(--teal);
+  margin-left: 0.3rem;
+}
+.part-a {
+  margin-top: 0.55rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 10px;
+  background: #fff8e8;
+  border: 1px dashed #edd7a3;
+  color: var(--ink);
+  line-height: 1.75;
+  font-size: 0.92rem;
+}
+.part-a strong {
+  color: var(--gold);
+  margin-left: 0.3rem;
+}
+
+.exam-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.7rem;
+  margin-top: 1rem;
+}
+.exam-nav {
+  display: flex;
+  gap: 0.5rem;
+}
+.btn-primary,
+.btn-secondary {
+  border-radius: 999px;
+  padding: 0.7rem 1.1rem;
+  font-weight: 800;
+  border: 1px solid transparent;
+}
+.btn-primary {
+  background: linear-gradient(120deg, #0f8f7f, #c4891a);
+  color: #fff;
+}
+.btn-secondary {
+  background: var(--paper-2);
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+.btn-primary:disabled,
+.btn-secondary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 560px) {
+  .exam-actions {
+    flex-direction: column;
+  }
+  .exam-nav,
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
+}
